@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="repository.b-pass"
+       name="b-pass Add-on Repository"
+       version="1.0.0"
+       provider-name="b-pass">
+  <extension point="xbmc.addon.repository" name="b-pass github Add-on Repository">
+    <dir>
+      <info compressed="false">https://b-pass.github.io/kodi-repo/zips/addons.xml</info>
+      <checksum verify="sha256">https://b-pass.github.io/kodi-repo/zips/addons.xml.sha256</checksum>
+      <datadir zip="true">https://b-pass.github.io/kodi-repo/zips/</datadir>
+      <hashes>sha256</hashes>
+    </dir>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_US">Add-ons by b-pass</summary>
+    <description lang="en_US">Installs and keeps up to date the Kodi add-ons written by b-pass and published on github.</description>
+    <platform>all</platform>
+    <license>The Unlicense</license>
+    <source>https://github.com/b-pass/kodi-repo</source>
+    <assets>
+      <icon>icon.png</icon>
+    </assets>
+  </extension>
+</addon>
