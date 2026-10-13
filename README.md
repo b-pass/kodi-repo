@@ -66,15 +66,3 @@ To ship dev builds, push to the add-on's `main` and run `./publish.py`.
 Add its GitHub repo to `GITHUB_REPOS` in `publish.py`. Dev-only files (`tests/`, `tools/`,
 `CLAUDE.md`, …) are dropped from the zips. That list is `EXCLUDE`.
 
-### Changing a repository add-on
-
-The repository add-ons are built from `repository.b-pass/` and `repository.b-pass.dev/` here.
-Bump the `version` in their `addon.xml` when you change them, or installed copies won't update.
-Commit and push this repo's `main` as usual: `publish.py` only pushes `gh-pages`.
-
-## First-time setup
-
-1. Create the GitHub repo `b-pass/kodi-repo` and push this directory to its `main` branch.
-2. Run `./publish.py` once, to create the `gh-pages` branch.
-3. In the repo's **Settings → Pages**, set **Source: Deploy from a branch**, branch
-   `gh-pages`, folder `/ (root)`.
