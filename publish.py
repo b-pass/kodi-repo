@@ -34,7 +34,7 @@ GITHUB_REPOS = [
     'b-pass/plugin.video.byu-tv',
     'b-pass/plugin.video.the-chosen',
     'b-pass/plugin.video.hoopla',
-    'b-pass/script.unified-view',
+    'b-pass/script.centerstage',
 ]
 
 # Dev-only files left out of the zips (matched against any path component).
