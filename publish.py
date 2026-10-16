@@ -4,8 +4,8 @@
 Builds two Kodi repositories from the add-ons' GitHub repos and pushes them
 to this repo's gh-pages branch:
   /     repository.b-pass      latest published release of each add-on
-  /dev  repository.b-pass.dev  default branch (main) of each add-on, plus the
-                               dev-only add-ons in GITHUB_FOLDERS
+  /dev  repository.b-pass.dev  default branch (main) of each add-on, and the
+                               latest pre-release or release of GITHUB_TAGGED
 
 Safe to run any time: nothing is pushed if a download fails, or if the
 result is identical to what is already published.
@@ -39,9 +39,10 @@ GITHUB_REPOS = [
     'b-pass/script.centerstage',
 ]
 
-# Dev-only add-ons kept in a folder of a bigger repo: (repo, branch, folder).
-GITHUB_FOLDERS = [
-    ('b-pass/xbmc', 'myth-estuary-omega', 'addons/skin.estuary'),  # skin.myth-estuary
+# Add-ons released from a repo that holds other things too: (repo, tag prefix).
+# Only their releases are used, never a branch; pre-releases go to /dev only.
+GITHUB_TAGGED = [
+    ('b-pass/xbmc', 'skin.myth-estuary-v'),  # tools/myth-estuary-release.sh
 ]
 
 # Dev-only files left out of the zips (matched against any path component).
@@ -83,17 +84,11 @@ def read_zip(data):
                               for i in zf.infolist() if not i.is_dir()})
 
 
-def read_tarball(data, folder=''):
-    """With folder, only the files under that folder, relative to it."""
-    prefix = f'{folder}/' if folder else ''
-    files = {}
-    with tarfile.open(fileobj=io.BytesIO(data), mode='r|gz') as tar:
-        for m in tar:
-            name = m.name.partition('/')[2]
-            if m.isfile() and name.startswith(prefix) and name != prefix:
-                # UTC, so the zips come out the same on any machine.
-                files[name[len(prefix):]] = (tar.extractfile(m).read(), time.gmtime(m.mtime)[:6])
-    return files
+def read_tarball(data):
+    with tarfile.open(fileobj=io.BytesIO(data)) as tar:
+        # UTC, so the zips come out the same on any machine.
+        return strip_top_dir({m.name: (tar.extractfile(m).read(), time.gmtime(m.mtime)[:6])
+                              for m in tar if m.isfile()})
 
 
 def read_dir(src):
@@ -101,13 +96,29 @@ def read_dir(src):
             for p in sorted(src.rglob('*')) if p.is_file()}
 
 
-def read_release(repo):
-    """Files of a repo's latest release: its .zip asset, else the tag's source."""
-    data = fetch(f'https://api.github.com/repos/{repo}/releases/latest', missing_ok=True)
-    if data is None:
+def find_release(repo, prefix, prereleases):
+    """Newest release whose tag starts with prefix, or None."""
+    data = fetch(f'https://api.github.com/repos/{repo}/releases?per_page=100', missing_ok=True)
+    releases = [r for r in json.loads(data or '[]')
+                if r['tag_name'].startswith(prefix) and not r['draft']
+                and (prereleases or not r['prerelease'])]
+    return max(releases, key=lambda r: r['published_at'], default=None)
+
+
+def read_release(repo, prefix='', prereleases=False):
+    """Files of a repo's latest release: its .zip asset, else the tag's source.
+
+    With a tag prefix, the newest release with that prefix (and, with
+    prereleases, pre-releases count too).
+    """
+    if prefix or prereleases:
+        release = find_release(repo, prefix, prereleases)
+    else:
+        data = fetch(f'https://api.github.com/repos/{repo}/releases/latest', missing_ok=True)
+        release = data and json.loads(data)
+    if not release:
         warn('no published release (or repo missing/private), skipped')
         return None
-    release = json.loads(data)
     tag = release['tag_name']
     zips = [a for a in release['assets'] if a['name'].endswith('.zip')]
     if zips:
@@ -118,32 +129,31 @@ def read_release(repo):
         files = read_tarball(fetch(f'https://github.com/{repo}/archive/refs/tags/{tag}.tar.gz'))
 
     version = addon_version(files)
-    if version and tag.lstrip('v') != version:
+    # Git tags can't have a "~", so 1.0~beta1 is tagged 1.0-beta1.
+    if version and tag.removeprefix(prefix).lstrip('v') != version.replace('~', '-'):
         warn(f'release {tag} contains addon.xml version {version}; Kodi will see it as {version}')
     return files
 
 
-def read_dev(repo, branch=None, folder=''):
-    """Files of a repo's branch (default: the default branch), or of a folder in
-    it, versioned <version>.dev<YYYYMMDD>.<HHMMSS>.
+def read_dev(repo):
+    """Files of a repo's default branch, versioned <version>.dev<YYYYMMDD>.<HHMMSS>.
 
     The suffix is the commit time (UTC), so each new commit is an update in
     Kodi, while still sorting below the next release. It's split in two so
     each number fits in a 32-bit long, which Kodi uses to compare versions.
     """
-    ref = f'refs/heads/{branch}' if branch else 'HEAD'
-    data = fetch(f'https://github.com/{repo}/archive/{ref}.tar.gz', missing_ok=True)
+    data = fetch(f'https://github.com/{repo}/archive/HEAD.tar.gz', missing_ok=True)
     if data is None:
-        warn('repo/branch missing, private or empty, skipped')
+        warn('repo missing/private/empty, skipped')
         return None
-    files = read_tarball(data, folder)
+    files = read_tarball(data)
     if 'addon.xml' in files:
         # git archive stamps every file with the commit time.
         xml, commit_time = files['addon.xml']
         suffix = '.dev{:04}{:02}{:02}.{:02}{:02}{:02}'.format(*commit_time).encode()
         xml = re.sub(rb'(<addon\b[^>]*?\bversion="[^"]+)', lambda m: m[1] + suffix, xml, count=1)
         files['addon.xml'] = (xml, commit_time)
-    print(f'  {branch or "default"} branch' + (f', {folder}' if folder else ''))
+    print('  default branch')
     return files
 
 
@@ -224,10 +234,13 @@ def build_repo(out, repo_addon, sources):
 
 def build_site():
     shutil.rmtree(SITE, ignore_errors=True)
+    tagged = lambda prereleases: [
+        (f'{repo} {prefix}*', functools.partial(read_release, repo, prefix, prereleases))
+        for repo, prefix in GITHUB_TAGGED]
     release = [(repo, functools.partial(read_release, repo)) for repo in GITHUB_REPOS]
-    dev = ([(repo, functools.partial(read_dev, repo)) for repo in GITHUB_REPOS]
-           + [(f'{repo} {branch}', functools.partial(read_dev, repo, branch, folder))
-              for repo, branch, folder in GITHUB_FOLDERS])
+    dev = [(repo, functools.partial(read_dev, repo)) for repo in GITHUB_REPOS]
+    release += tagged(False)
+    dev += tagged(True)
     repo_zips = [build_repo(SITE, ROOT / 'repository.b-pass', release),
                  build_repo(SITE / 'dev', ROOT / 'repository.b-pass.dev', dev)]
     links = ''.join(f'<a href="{href}">{href}</a><br>\n'
