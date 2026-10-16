@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addons>
+<addon id="repository.b-pass"
+       name="b-pass Add-on Repository"
+       version="1.0.0"
+       provider-name="b-pass">
+  <extension point="xbmc.addon.repository" name="b-pass github Add-on Repository">
+    <dir>
+      <info compressed="false">https://b-pass.github.io/kodi-repo/zips/addons.xml</info>
+      <checksum verify="sha256">https://b-pass.github.io/kodi-repo/zips/addons.xml.sha256</checksum>
+      <datadir zip="true">https://b-pass.github.io/kodi-repo/zips/</datadir>
+      <hashes>sha256</hashes>
+    </dir>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_US">Add-ons by b-pass</summary>
+    <description lang="en_US">Installs and keeps up to date the Kodi add-ons written by b-pass and published on github.</description>
+    <platform>all</platform>
+    <license>The Unlicense</license>
+    <source>https://github.com/b-pass/kodi-repo</source>
+    <assets>
+      <icon>icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+<addon id="plugin.video.byu-tv"
+       name="BYUtv"
+       version="0.4.2"
+       provider-name="b-pass">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="script.module.requests" version="2.22.0"/>
+    <import addon="script.module.inputstreamhelper" version="0.5.8+matrix.1"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">BYUtv</summary>
+    <description lang="en_GB">The mission of BYUtv is to create purposeful, engaging viewing and listening experiences that entertain, inspire, uplift, and improve families and communities. Our vision is to be the family entertainment brand that young people want, parents trust, and families enjoy together.
+
+    This plugin requires Widevine is installed in Kodi in order to play encrypted video. We recommend the InputStreamHelper plugin which will help you get it set up.
+    </description>
+    <disclaimer lang="en_GB">Unofficial and not affiliated with or specifically authorized by BYUtv.</disclaimer>
+    <platform>all</platform>
+    <language>en</language>
+    <license>Boost-1.0</license>
+    <website>https://www.byutv.org</website>
+    <source>https://github.com/b-pass/plugin.video.byu-tv</source>
+    <assets>
+        <icon>resources/icon.png</icon>
+        <fanart>resources/fanart.png</fanart>
+    </assets>
+  </extension>
+</addon>
+<addon id="plugin.video.the-chosen"
+       name="The Chosen"
+       version="0.5.3"
+       provider-name="b-pass">
+  <requires>
+    <import addon="xbmc.python" version="3.0.1"/>
+    <import addon="script.module.requests" version="2.22.0"/>
+    <import addon="script.module.inputstreamhelper" version="0.5.8+matrix.1"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Binge Jesus</summary>
+    <description lang="en_GB">We’re telling the story of Jesus in 7 seasons. We’ll bring our loaves and fishes, you bring yours by paying it forward, and together we’ll watch God work miracles.</description>
+    <disclaimer lang="en_GB">Unofficial and not affiliated with or specifically authorized by The Chosen, Inc. Images and video included with or displayed by this plugin belong to them alone.</disclaimer>
+    <platform>all</platform>
+    <language>en</language>
+    <license>The Unlicense</license>
+    <website>https://watch.thechosen.tv</website>
+    <source>https://github.com/b-pass/plugin.video.the-chosen</source>
+    <assets>
+        <icon>resources/icon.png</icon>
+        <fanart>resources/fanart.png</fanart>
+        <clearlogo>resources/clearlogo.png</clearlogo>
+    </assets>
+  </extension>
+</addon>
+</addons>
