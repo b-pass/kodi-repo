@@ -8,7 +8,7 @@ There are two repositories:
 | Repository add-on        | Path    | Contains                                              |
 |--------------------------|---------|-------------------------------------------------------|
 | `repository.b-pass`      | `/`     | The latest published GitHub release of each add-on    |
-| `repository.b-pass.dev`  | `/dev/` | The current `main` branch of each add-on              |
+| `repository.b-pass.dev`  | `/dev/` | The current `main` branch of each add-on, and Myth Estuary |
 
 Dev builds are versioned `<version>.dev<YYYYMMDD>.<HHMMSS>` (the commit time, UTC). So every
 new commit on `main` is an update in Kodi, but a dev build still counts as older than the next
@@ -65,4 +65,10 @@ To ship dev builds, push to the add-on's `main` and run `./publish.py`.
 
 Add its GitHub repo to `GITHUB_REPOS` in `publish.py`. Dev-only files (`tests/`, `tools/`,
 `CLAUDE.md`, …) are dropped from the zips. That list is `EXCLUDE`.
+
+An add-on that lives in a folder of a bigger repo goes in `GITHUB_FOLDERS` instead, as
+`(repo, branch, folder)`. These are dev-only: they're built from that branch into the dev
+repository and left out of the release one. The Myth Estuary skin (`skin.myth-estuary`) is
+published this way, from `addons/skin.estuary` on the `myth-estuary-omega` branch of
+`b-pass/xbmc`.
 

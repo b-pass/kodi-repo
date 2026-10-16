@@ -4,12 +4,14 @@
 Builds two Kodi repositories from the add-ons' GitHub repos and pushes them
 to this repo's gh-pages branch:
   /     repository.b-pass      latest published release of each add-on
-  /dev  repository.b-pass.dev  default branch (main) of each add-on
+  /dev  repository.b-pass.dev  default branch (main) of each add-on, plus the
+                               dev-only add-ons in GITHUB_FOLDERS
 
 Safe to run any time: nothing is pushed if a download fails, or if the
 result is identical to what is already published.
 """
 import argparse
+import functools
 import hashlib
 import html
 import io
@@ -35,6 +37,11 @@ GITHUB_REPOS = [
     'b-pass/plugin.video.the-chosen',
     'b-pass/plugin.video.hoopla',
     'b-pass/script.centerstage',
+]
+
+# Dev-only add-ons kept in a folder of a bigger repo: (repo, branch, folder).
+GITHUB_FOLDERS = [
+    ('b-pass/xbmc', 'myth-estuary-omega', 'addons/skin.estuary'),  # skin.myth-estuary
 ]
 
 # Dev-only files left out of the zips (matched against any path component).
@@ -76,11 +83,17 @@ def read_zip(data):
                               for i in zf.infolist() if not i.is_dir()})
 
 
-def read_tarball(data):
-    with tarfile.open(fileobj=io.BytesIO(data)) as tar:
-        # UTC, so the zips come out the same on any machine.
-        return strip_top_dir({m.name: (tar.extractfile(m).read(), time.gmtime(m.mtime)[:6])
-                              for m in tar if m.isfile()})
+def read_tarball(data, folder=''):
+    """With folder, only the files under that folder, relative to it."""
+    prefix = f'{folder}/' if folder else ''
+    files = {}
+    with tarfile.open(fileobj=io.BytesIO(data), mode='r|gz') as tar:
+        for m in tar:
+            name = m.name.partition('/')[2]
+            if m.isfile() and name.startswith(prefix) and name != prefix:
+                # UTC, so the zips come out the same on any machine.
+                files[name[len(prefix):]] = (tar.extractfile(m).read(), time.gmtime(m.mtime)[:6])
+    return files
 
 
 def read_dir(src):
@@ -110,25 +123,27 @@ def read_release(repo):
     return files
 
 
-def read_dev(repo):
-    """Files of a repo's default branch, versioned <version>.dev<YYYYMMDD>.<HHMMSS>.
+def read_dev(repo, branch=None, folder=''):
+    """Files of a repo's branch (default: the default branch), or of a folder in
+    it, versioned <version>.dev<YYYYMMDD>.<HHMMSS>.
 
     The suffix is the commit time (UTC), so each new commit is an update in
     Kodi, while still sorting below the next release. It's split in two so
     each number fits in a 32-bit long, which Kodi uses to compare versions.
     """
-    data = fetch(f'https://github.com/{repo}/archive/HEAD.tar.gz', missing_ok=True)
+    ref = f'refs/heads/{branch}' if branch else 'HEAD'
+    data = fetch(f'https://github.com/{repo}/archive/{ref}.tar.gz', missing_ok=True)
     if data is None:
-        warn('repo missing/private/empty, skipped')
+        warn('repo/branch missing, private or empty, skipped')
         return None
-    files = read_tarball(data)
+    files = read_tarball(data, folder)
     if 'addon.xml' in files:
         # git archive stamps every file with the commit time.
         xml, commit_time = files['addon.xml']
         suffix = '.dev{:04}{:02}{:02}.{:02}{:02}{:02}'.format(*commit_time).encode()
         xml = re.sub(rb'(<addon\b[^>]*?\bversion="[^"]+)', lambda m: m[1] + suffix, xml, count=1)
         files['addon.xml'] = (xml, commit_time)
-    print('  default branch')
+    print(f'  {branch or "default"} branch' + (f', {folder}' if folder else ''))
     return files
 
 
@@ -178,14 +193,17 @@ def package(files, zips):
     return addon_id, version, xml_text
 
 
-def build_repo(out, repo_addon, read):
-    """Build one Kodi repository into out; returns its repository add-on zip."""
+def build_repo(out, repo_addon, sources):
+    """Build one Kodi repository into out; returns its repository add-on zip.
+
+    sources is a list of (name, function returning the add-on's files or None).
+    """
     zips = out / 'zips'
     print(f'{repo_addon.name} (local):')
     built = [package(read_dir(repo_addon), zips)]
-    for repo in GITHUB_REPOS:
-        print(f'{repo}:')
-        files = read(repo)
+    for name, read in sources:
+        print(f'{name}:')
+        files = read()
         if files and (addon := package(files, zips)):
             built.append(addon)
 
@@ -206,8 +224,12 @@ def build_repo(out, repo_addon, read):
 
 def build_site():
     shutil.rmtree(SITE, ignore_errors=True)
-    repo_zips = [build_repo(SITE, ROOT / 'repository.b-pass', read_release),
-                 build_repo(SITE / 'dev', ROOT / 'repository.b-pass.dev', read_dev)]
+    release = [(repo, functools.partial(read_release, repo)) for repo in GITHUB_REPOS]
+    dev = ([(repo, functools.partial(read_dev, repo)) for repo in GITHUB_REPOS]
+           + [(f'{repo} {branch}', functools.partial(read_dev, repo, branch, folder))
+              for repo, branch, folder in GITHUB_FOLDERS])
+    repo_zips = [build_repo(SITE, ROOT / 'repository.b-pass', release),
+                 build_repo(SITE / 'dev', ROOT / 'repository.b-pass.dev', dev)]
     links = ''.join(f'<a href="{href}">{href}</a><br>\n'
                     for href in (html.escape(str(z.relative_to(SITE))) for z in repo_zips))
     (SITE / 'index.html').write_text(
