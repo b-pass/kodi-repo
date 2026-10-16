@@ -23,7 +23,12 @@ real release.
    builds).
 4. **Add-ons → Install from repository**: pick the repository and install add-ons from it.
 
-Kodi then checks for updates by itself. Dependencies such as `script.module.requests` and
+Or download the repository zip from this repo's
+[releases page](https://github.com/b-pass/kodi-repo/releases), copy it to the Kodi device, and
+use **Install from zip file** on it in place of steps 2 and 3.
+
+Kodi then checks for updates by itself, the repository add-on included: each repository lists
+itself. Dependencies such as `script.module.requests` and
 `script.module.inputstreamhelper` come from the official Kodi repository.
 
 ## Publishing
@@ -60,6 +65,21 @@ The version Kodi sees comes from the `addon.xml` inside the release, not from th
 two don't match, the script prints a warning.
 
 To ship dev builds, push to the add-on's `main` and run `./publish.py`.
+
+### Releasing the repository add-ons
+
+The repository add-ons are in this repo (`repository.b-pass/`, `repository.b-pass.dev/`). Each
+repository lists its own add-on, so installed copies update like any other add-on. Change one
+only for something like new URLs, and bump its `version`:
+
+1. Bump `version` in its `addon.xml`, commit and push, then run `./publish.py`.
+2. Attach the new zip from `_site/` to a GitHub release, so people can download it. The dev
+   one is kept off "Latest", so the releases page points people at the regular one:
+
+   ```sh
+   gh release create repository.b-pass-v<version> _site/repository.b-pass-<version>.zip --latest
+   gh release create repository.b-pass.dev-v<version> _site/dev/repository.b-pass.dev-<version>.zip --latest=false
+   ```
 
 ### Adding an add-on
 
