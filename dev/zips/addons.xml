@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addons>
+<addon id="repository.b-pass.dev"
+       name="b-pass Add-on Repository (dev)"
+       version="1.0.0"
+       provider-name="b-pass">
+  <extension point="xbmc.addon.repository" name="b-pass github Add-on Repository (dev)">
+    <dir>
+      <info compressed="false">https://b-pass.github.io/kodi-repo/dev/zips/addons.xml</info>
+      <checksum verify="sha256">https://b-pass.github.io/kodi-repo/dev/zips/addons.xml.sha256</checksum>
+      <datadir zip="true">https://b-pass.github.io/kodi-repo/dev/zips/</datadir>
+      <hashes>sha256</hashes>
+    </dir>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_US">Development builds of add-ons by b-pass</summary>
+    <description lang="en_US">Installs and keeps up to date the latest development (main branch) builds of the Kodi add-ons written by b-pass. These may be broken at any time; use the regular b-pass repository for released versions.</description>
+    <platform>all</platform>
+    <license>The Unlicense</license>
+    <source>https://github.com/b-pass/kodi-repo</source>
+    <assets>
+      <icon>icon.png</icon>
+    </assets>
+  </extension>
+</addon>
+<addon id="plugin.video.byu-tv"
+       name="BYUtv"
+       version="0.5.1.dev20260928.003945"
+       provider-name="b-pass">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="script.module.requests" version="2.22.0"/>
+    <import addon="script.module.inputstreamhelper" version="0.5.8+matrix.1"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">BYUtv</summary>
+    <description lang="en_GB">The mission of BYUtv is to create purposeful, engaging viewing and listening experiences that entertain, inspire, uplift, and improve families and communities. Our vision is to be the family entertainment brand that young people want, parents trust, and families enjoy together.
+
+    This plugin requires Widevine is installed in Kodi in order to play encrypted video. We recommend the InputStreamHelper plugin which will help you get it set up.
+    </description>
+    <disclaimer lang="en_GB">Unofficial and not affiliated with or specifically authorized by BYUtv.</disclaimer>
+    <platform>all</platform>
+    <language>en</language>
+    <license>Boost-1.0</license>
+    <website>https://www.byutv.org</website>
+    <source>https://github.com/b-pass/plugin.video.byu-tv</source>
+    <assets>
+        <icon>resources/icon.png</icon>
+        <fanart>resources/fanart.png</fanart>
+    </assets>
+  </extension>
+</addon>
+<addon id="plugin.video.the-chosen"
+       name="The Chosen"
+       version="0.5.3.dev20261016.205500"
+       provider-name="b-pass">
+  <requires>
+    <import addon="xbmc.python" version="3.0.1"/>
+    <import addon="script.module.requests" version="2.22.0"/>
+    <import addon="script.module.inputstreamhelper" version="0.5.8+matrix.1"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Binge Jesus</summary>
+    <description lang="en_GB">We’re telling the story of Jesus in 7 seasons. We’ll bring our loaves and fishes, you bring yours by paying it forward, and together we’ll watch God work miracles.</description>
+    <disclaimer lang="en_GB">Unofficial and not affiliated with or specifically authorized by The Chosen, Inc. Images and video included with or displayed by this plugin belong to them alone.</disclaimer>
+    <platform>all</platform>
+    <language>en</language>
+    <license>The Unlicense</license>
+    <website>https://watch.thechosen.tv</website>
+    <source>https://github.com/b-pass/plugin.video.the-chosen</source>
+    <assets>
+        <icon>resources/icon.png</icon>
+        <fanart>resources/fanart.png</fanart>
+        <clearlogo>resources/clearlogo.png</clearlogo>
+    </assets>
+  </extension>
+</addon>
+<addon id="plugin.video.hoopla"
+       name="Hoopla"
+       version="0.0.1.dev20260929.020640"
+       provider-name="b-pass">
+  <requires>
+    <import addon="xbmc.python" version="3.0.1"/>
+    <import addon="script.module.requests" version="2.22.0"/>
+    <import addon="script.module.inputstreamhelper" version="0.5.8+matrix.1"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_US">Your public library at your fingertips.</summary>
+    <description lang="en_US">Watch hoopla digital's movies, TV and BingePasses in Kodi with your public library card. Browse and search your library's catalog, borrow as you play, and see your loans and borrowing history. Requires a hoopla account from a participating library, and Widevine DRM (set up through InputStream Helper).</description>
+    <disclaimer lang="en_US">Unofficial and not affiliated with or specifically authorized by Hoopla or your library. Images and video included with or displayed by this plugin belong to them alone.</disclaimer>
+    <platform>all</platform>
+    <language>en</language>
+    <license>The Unlicense</license>
+    <website>https://www.hoopladigital.com</website>
+    <source>https://github.com/b-pass/plugin.video.hoopla</source>
+    <assets>
+        <icon>resources/icon.png</icon>
+        <fanart>resources/fanart.jpg</fanart>
+        <clearlogo>resources/clearlogo.png</clearlogo>
+    </assets>
+  </extension>
+</addon>
+<addon id="script.centerstage"
+       name="Center Stage"
+       version="0.0.1.dev20261022.012728"
+       provider-name="b-pass">
+  <requires>
+    <import addon="xbmc.python" version="3.0.1"/>
+  </requires>
+  <!-- the title list as a folder, for widgets and skins (plugin://script.centerstage/...).
+       Clicking the add-on runs RunAddon, which prefers the plugin: it opens the Programs window
+       on the plugin's root, which opens ours. With no content type RunAddon does nothing. It
+       comes first, so it's the add-on's main type: Kodi's add-on widgets list an add-on as a
+       folder only then, and otherwise click it with PlayMedia. -->
+  <extension point="xbmc.python.pluginsource" library="plugin.py">
+    <provides>executable</provides>
+  </extension>
+  <!-- the window; listed under Programs -->
+  <extension point="xbmc.python.script" library="default.py">
+    <provides>executable</provides>
+  </extension>
+  <extension point="kodi.context.item">
+    <menu id="kodi.core.main">
+      <item library="context.py">
+        <label>32000</label>
+        <visible>!ListItem.IsParentFolder + !String.StartsWith(ListItem.FolderPath,plugin://script.centerstage) + [String.StartsWith(ListItem.FolderPath,plugin://) | String.StartsWith(ListItem.FolderPath,pvr://recordings) | String.IsEqual(ListItem.DBType,movie) | String.IsEqual(ListItem.DBType,tvshow) | String.IsEqual(ListItem.DBType,season) | String.IsEqual(ListItem.DBType,episode)]</visible>
+      </item>
+    </menu>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Your shows, recordings and add-on favourites in one place.</summary>
+    <description lang="en_GB">One list of everything you watch: PVR recordings appear automatically, and you can add library shows, seasons and movies, and shows or videos from other add-ons, with "Add to Center Stage" in the context menu. Pick a title to see its episodes and details; pick an episode to play it.</description>
+    <platform>all</platform>
+    <language>en</language>
+    <license>The Unlicense</license>
+    <assets>
+      <icon>resources/icon.png</icon>
+      <fanart>resources/fanart.jpg</fanart>
+    </assets>
+  </extension>
+</addon>
+<addon id="skin.myth-estuary" version="4.0.0" name="Myth Estuary" provider-name="b-pass">
+	<requires>
+		<import addon="xbmc.gui" version="5.17.0"/>
+	</requires>
+	<extension point="xbmc.gui.skin" debugging="false">
+		<res width="1920" height="1440" aspect="4:3" default="false" folder="xml" />
+		<res width="1920" height="1280" aspect="3:2" default="false" folder="xml" />
+		<res width="1920" height="1200" aspect="16:10" default="false" folder="xml" />
+		<res width="2040" height="1080" aspect="17:9" default="false" folder="xml" />
+		<res width="1920" height="1080" aspect="16:9" default="true" folder="xml" />
+		<res width="2560" height="1080" aspect="21:9" default="false" folder="xml" />
+		<res width="2338" height="1080" aspect="19.5:9" default="false" folder="xml" />
+		<res width="2160" height="1080" aspect="18:9" default="false" folder="xml" />
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<platform>all</platform>
+		<license>CC BY-SA 4.0, GNU GENERAL PUBLIC LICENSE Version 2.0</license>
+		<source>https://github.com/b-pass/xbmc/</source>
+		<assets>
+			<icon>resources/icon.png</icon>
+			<fanart>resources/fanart.jpg</fanart>
+			<screenshot>resources/screenshot-01.jpg</screenshot>
+		</assets>
+		<summary lang="en_US">Myth Estuary skin by b-pass.  Mostly a copy of the Estuary skin by phil65 and Piers. (Kodi&apos;s default skin)</summary>
+		<description lang="en_US">Myth Estuary tries to make a more useful PVR section, and modifies Home and PVR areas in order to do that.  Almost everything else is the same as the normal Estuary skin.</description>
+	</extension>
+</addon>
+</addons>
